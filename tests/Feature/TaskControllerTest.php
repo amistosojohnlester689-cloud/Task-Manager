@@ -24,6 +24,24 @@ class TaskControllerTest extends TestCase
             'task_name' => 'Write tests',
             'status' => 'Pending',
         ]);
+
+        $this->get(route('tasks.index'))
+            ->assertSee('Write tests');
+    }
+
+    public function test_edit_page_opens_for_the_selected_task(): void
+    {
+        $task = Task::create([
+            'task_name' => 'Edit this task',
+            'description' => null,
+            'status' => 'Pending',
+            'due_date' => null,
+        ]);
+
+        $response = $this->get(route('tasks.edit', $task));
+
+        $response->assertSee('Edit this task');
+        $response->assertSee('action="'.route('tasks.update', $task, false).'"', false);
     }
 
     public function test_a_task_can_be_updated_and_returns_to_the_homepage(): void
@@ -48,6 +66,9 @@ class TaskControllerTest extends TestCase
             'task_name' => 'Updated task',
             'status' => 'Completed',
         ]);
+
+        $this->get(route('tasks.index'))
+            ->assertSee('Updated task');
     }
 
     public function test_a_task_can_be_deleted(): void
@@ -63,5 +84,8 @@ class TaskControllerTest extends TestCase
 
         $response->assertRedirect(route('tasks.index'));
         $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+
+        $this->get(route('tasks.index'))
+            ->assertDontSee('Remove task');
     }
 }

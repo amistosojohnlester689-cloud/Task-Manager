@@ -3,62 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class TaskController extends Controller
 {
-    public function index(): View
+    public function index()
     {
         $tasks = Task::all();
 
         return view('tasks.index', compact('tasks'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate($this->taskRules());
+        $request->validate([
+            'task_name' => 'required',
+            'description' => 'nullable',
+            'status' => 'required',
+            'due_date' => 'nullable|date',
+        ]);
 
-        Task::create($validated);
+        Task::create($request->all());
 
         return redirect()->route('tasks.index');
     }
 
-    public function edit(int $id): View
+    public function edit($id)
     {
         $task = Task::findOrFail($id);
 
         return view('tasks.edit', compact('task'));
     }
 
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'task_name' => 'required',
+            'description' => 'nullable',
+            'status' => 'required',
+            'due_date' => 'nullable|date',
+        ]);
+
+        $task = Task::findOrFail($id);
+
+        $task->update($request->all());
+
+        return redirect()->route('tasks.index');
+    }
+
+    public function destroy($id)
     {
         $task = Task::findOrFail($id);
-        $validated = $request->validate($this->taskRules());
 
-        $task->update($validated);
-
-        return redirect()->route('tasks.index');
-    }
-
-    public function destroy(int $id): RedirectResponse
-    {
-        Task::findOrFail($id)->delete();
+        $task->delete();
 
         return redirect()->route('tasks.index');
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function taskRules(): array
-    {
-        return [
-            'task_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:Pending,Completed',
-            'due_date' => 'nullable|date',
-        ];
     }
 }
