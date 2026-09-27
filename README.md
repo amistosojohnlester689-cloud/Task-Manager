@@ -7,7 +7,7 @@ Project Information
 Project Code: WST21-PM-2026-SF
 Student Name: John Lester Amistoso 
 Course & Year: BSIT 2nd Year
-Database Used: MySQL
+Database Used: SQLite 
 
 Features
 
